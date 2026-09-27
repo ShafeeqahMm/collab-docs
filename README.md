@@ -11,22 +11,22 @@ Most "real-time collaborative editor" tutorials start with the hard part (sync) 
 - Email/password auth via NextAuth (credentials provider, bcrypt-hashed passwords)
 - Create, list, view, and edit documents
 - Per-document access control: an owner, plus optional collaborators with `EDITOR` or `VIEWER` roles enforced on every API route (`src/lib/documentAccess.ts`)
-- Debounced autosave (no manual "Save" button — edits persist ~800ms after you stop typing)
+- Debounced autosave (no manual "Save" button. Edits persists after you stop typing)
 
 ### Why credentials auth instead of Google/GitHub OAuth
 
-OAuth providers require registering an app with each provider before anything runs, which is friction for anyone (including a future me, or an interviewer) trying to clone and run this locally. Credentials auth needs zero external setup. Swapping in an OAuth provider later is a small, well-documented change to `src/lib/auth.ts` — not a redesign.
+OAuth providers require registering an app with each provider before anything runs, which is friction for anyone trying to clone and run this locally. Credentials auth needs zero external setup. Swapping in an OAuth provider later is a small, well-documented change to `src/lib/auth.ts`, not a redesign.
 
 ## Phase 2 (next): Real-time sync
 
-The `content` textarea currently only saves on a debounce — two people editing the same doc in different tabs will silently overwrite each other. Phase 2 adds a WebSocket server so:
+The `content` textarea currently only saves on a debounce so two people editing the same doc in different tabs will silently overwrite each other. Phase 2 adds a WebSocket server so:
 - Multiple people see each other's changes live
 - Cursor/presence indicators show who else is viewing
 - Conflict resolution uses [Yjs](https://github.com/yjs/yjs) (a CRDT library) rather than naive last-write-wins
 
 ## Phase 3 (later): AI feature
 
-A "summarize this document" button hitting an LLM API — small and functional, not the point of the app.
+A "summarize this document" button hitting an LLM API which is small and functional, not the point of the app.
 
 ## Setup
 
@@ -65,4 +65,4 @@ Next.js 14 (App Router), TypeScript, NextAuth, Prisma, PostgreSQL, Tailwind CSS.
 
 - No email verification or password reset flow — fine for a portfolio demo, not production-ready as-is
 - No rate limiting on the register/login endpoints
-- Autosave has no conflict detection yet — that's exactly what Phase 2 fixes
+- Autosave has no conflict detection yet which is exactly what Phase 2 fixes
