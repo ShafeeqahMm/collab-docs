@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String     @id @default(uuid())
+  name          String
+  email         String     @unique
+  passwordHash  String
+  createdAt     DateTime   @default(now())
+
+  documents     Document[] @relation("DocumentOwner")
+  collaborations DocumentCollaborator[]
+}
+
+model Document {
+  id        String   @id @default(uuid())
+  title     String
+  content   String   @default("") // plain text/markdown for now; Phase 2 adds real-time sync on top of this
+  ownerId   String
+  owner     User     @relation("DocumentOwner", fields: [ownerId], references: [id])
+
+  collaborators DocumentCollaborator[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ownerId])
+}
+
+// Join table: which users besides the owner can access a document, and at
+// what permission level. Kept separate from Document so a doc can have any
+// number of collaborators without schema changes.
+model DocumentCollaborator {
+  id         String   @id @default(uuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role     @default(EDITOR)
+  createdAt  DateTime @default(now())
+
+  @@unique([documentId, userId])
+}
+
+enum Role {
+  VIEWER
+  EDITOR
+}
